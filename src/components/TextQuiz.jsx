@@ -4,6 +4,8 @@ import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
 import AskBuddy from './AskBuddy';
 import { determineDifficulty } from '../utils/difficulty';
+import {shuffleArray } from '../utils/shuffler';
+import { selectRegion } from '../utils/regionsProba';
 
 
 const TextQuiz = ({
@@ -28,23 +30,6 @@ const TextQuiz = ({
     apiKey: import.meta.env.VITE_OPENAI_API_KEY,
     dangerouslyAllowBrowser: true
   });
-
-  /* Function to select a region based on user performance */
-  const selectRegion = () => {
-    const weightedRegions = Object.values(regions).map(region => {
-      const performance = userProfile[region];
-      const weight = Math.max(0, 10 - performance.correct);
-      return { region, weight };
-    });
-
-    const totalWeight = weightedRegions.reduce((sum, { weight }) => sum + weight, 0);
-    let random = Math.random() * totalWeight;
-    for (const { region, weight } of weightedRegions) {
-      random -= weight;
-      if (random < 0) return region;
-    }
-    return regions[0];
-  };
 
   /* Function to fetch a new question from OpenAI */
   const getQuestion = async (avoid, region) => {
@@ -132,7 +117,7 @@ const TextQuiz = ({
     setIsCorrect(null); // Reset isCorrect state
 
     // Select a new region
-    let region = selectRegion();
+    let region = selectRegion(userProfile, regions);
     setCurrentRegion(region);
 
     updateUserProfileDifficulty(region, determineDifficulty(userProfile, region));
@@ -146,15 +131,7 @@ const TextQuiz = ({
     getQuestion('', currentRegion);
   }, []);
 
-  /* Helper for shuffling answer options */
-  const shuffleArray = (array) => {
-    for (let i = array.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [array[i], array[j]] = [array[j], array[i]]; // Swap elements
-    }
-    return array;
-  };
-
+  /* Markup */
   return (
     <div className="relative p-8 bg-slate-50 rounded-lg border-2 border-slate-200">
       <h1 className="text-2xl font-bold mb-6 text-center">Geography Capitals Text Quiz</h1>

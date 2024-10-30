@@ -6,6 +6,8 @@ import 'react-loading-skeleton/dist/skeleton.css';
 import OpenAI from 'openai';
 import AskBuddy from './AskBuddy';
 import { determineDifficulty } from '../utils/difficulty';
+import { shuffleArray } from '../utils/shuffler';
+import { selectRegion } from '../utils/regionsProba';
 
 const MapController = ({ coords }) => {
   const map = useMap();
@@ -43,25 +45,6 @@ const GraphicalQuiz = ({
     apiKey: import.meta.env.VITE_OPENAI_API_KEY,
     dangerouslyAllowBrowser: true
   });
-
-  // Select a region based on user performance
-  const selectRegion = () => {
-    const weightedRegions = Object.values(regions).map(region => {
-      const performance = userProfile[region];
-      const weight = Math.max(0, 10 - performance.correct);
-      return { region, weight };
-    });
-
-    const totalWeight = weightedRegions.reduce((sum, { weight }) => sum + weight, 0);
-    let random = Math.random() * totalWeight;
-
-    for (const { region, weight } of weightedRegions) {
-      random -= weight;
-      if (random < 0) return region;
-    }
-
-    return regions[0];
-  };
 
   // Fetch a new question from OpenAI
   const getQuestion = async (avoid, region) => {
@@ -156,7 +139,7 @@ const GraphicalQuiz = ({
     setIsCorrect(null); // Reset isCorrect state
 
     // Select a new region
-    let region = selectRegion();
+    let region = selectRegion(userProfile, regions);
     setCurrentRegion(region);
 
     updateUserProfileDifficulty(region, determineDifficulty(userProfile, region));
@@ -177,22 +160,22 @@ const GraphicalQuiz = ({
   return (
     <div className="relative p-8 bg-slate-50 rounded-lg border-2 border-slate-200">
       <h1 className="text-2xl font-bold mb-6 text-center">Graphical Geography Quiz</h1>
-      <p>In which country is this capital?</p>
+      <p className="text-center">In which country is this capital?</p>
       {/* Map displaying the capital */}
-      <MapContainer center={currentCoordinates} zoom={5} style={{ height: '400px', width: '100%' }} className="z-10">
+      <MapContainer center={currentCoordinates} zoom={5} style={{ height: '300px', width: '100%', maxWidth: "800px", margin: "0 auto" }} className="z-10">
         <TileLayer
           url="https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}.png"
           attribution='&copy; <a href="https://carto.com/attributions">CARTO</a> | &copy; <a href="https://openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         />
         <MapController coords={currentCoordinates} />
         <Marker position={currentCoordinates}>
-          <Popup>Which city is here?</Popup>
+          <Popup>In which country is this city located?</Popup>
         </Marker>
       </MapContainer>
 
       {/* Display question and options */}
       {loading ? (
-        <div className="flex flex-row items-center justify-center gap-4 m-4">
+        <div className="flex flex-row flex-wrap items-center justify-center gap-4 m-4">
           <Skeleton height={50} width={150} baseColor="var(--skeleton-base-color)" highlightColor="var(--skeleton-highlight-color)" />
           <Skeleton height={50} width={150} baseColor="var(--skeleton-base-color)" highlightColor="var(--skeleton-highlight-color)" />
           <Skeleton height={50} width={150} baseColor="var(--skeleton-base-color)" highlightColor="var(--skeleton-highlight-color)" />
@@ -200,7 +183,7 @@ const GraphicalQuiz = ({
         </div>
       ) : (
         <>
-          <div className="flex flex-row items-center justify-center gap-4 m-4">
+          <div className="flex flex-row flex-wrap items-center justify-center gap-4 m-4">
             {options.map((option, index) => (
               <button
                 key={index}

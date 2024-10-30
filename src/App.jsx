@@ -4,7 +4,7 @@ import TextQuiz from './components/TextQuiz';
 import GraphicalQuiz from './components/GraphicalQuiz';
 import NotFound from './components/NotFound';
 import Home from './components/Home';
-import { FaChevronRight, FaChevronLeft, FaChevronCircleUp, FaChevronCircleDown } from 'react-icons/fa';
+import { FaChevronRight, FaChevronLeft, FaChevronCircleUp, FaChevronCircleDown, FaBars } from 'react-icons/fa';
 import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
 
@@ -16,7 +16,7 @@ const REGIONS = {
   AMERICAS: 'Americas'
 };
 const POINTS = { "easy": 1, "medium": 2, "hard": 3 };
-const REGION_MAX = 2;
+const REGION_MAX = 15;
 
 /* User profile init generator */
 const generateInitialUserProfile = () => {
@@ -40,10 +40,16 @@ const App = () => {
 
   // Technical
   const [isSidebarExpanded, setIsSidebarExpanded] = useState(false);
-  const [isRegionProgressVisible, setIsRegionProgressVisible] = useState(true); // Toggle state for collapsible section
+  const [isRegionProgressVisible, setIsRegionProgressVisible] = useState(false); // Toggle state for collapsible section
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
 
   const toggleRegionProgress = () => {
     setIsRegionProgressVisible(!isRegionProgressVisible);
+  };
+
+  const toggleSidebar = () => {
+    setIsSidebarExpanded(!isSidebarExpanded);
   };
 
   const updateUserProfile = (region, correct, difficulty) => {
@@ -110,23 +116,48 @@ const App = () => {
     }
   }, [userProfile]);
 
+
+  const toggleMobileMenu = () => {
+    setIsMobileMenuOpen(!isMobileMenuOpen);
+  };
+
   /* Markup */
   return (
     <Router>
-      <div className="min-h-screen flex flex-col bg-white text-slate-500">
-        <header className="bg-white py-4 px-6 border-b-2 border-slate-200 flex items-center justify-between">
+      <div className="h-100 flex flex-col bg-white text-slate-500">
+
+        {/* Header */}
+        <header className="bg-slate-50 py-4 px-6 border-b-2 border-slate-200 flex items-center justify-between">
           <h1 className="text-3xl font-bold text-slate-800 flex items-center">
             Geo<span className="text-orange-500"><i>Buddy</i></span>
           </h1>
-          <nav className="flex space-x-6">
+          {/* Desktop Nav Links */}
+          <nav className="hidden md:flex space-x-6">
             <Link to="/" className="text-slate-600 p-2 rounded hover:text-orange-500 hover:bg-slate-100">Home</Link>
             <Link to="/text-quiz" className="text-slate-600 p-2 rounded hover:text-orange-500 hover:bg-slate-100">Text Quiz</Link>
             <Link to="/graphical-quiz" className="text-slate-600 p-2 rounded hover:text-orange-500 hover:bg-slate-100">Graphical Quiz</Link>
           </nav>
+
+          {/* Hamburger Menu Icon */}
+          <button onClick={toggleMobileMenu} className="md:hidden text-2xl text-slate-500">
+            <FaBars />
+          </button>
         </header>
 
-        <div className="flex flex-grow text-slate-500">
-          <div className={`bg-slate-200 transition-all duration-300 ease-in-out ${isSidebarExpanded ? 'w-64' : 'w-16'} flex-shrink-0`}>
+        {/* Mobile Menu */}
+        {isMobileMenuOpen && (
+          <div className="md:hidden bg-slate-100">
+            <nav className="flex flex-col items-start space-y-2 p-4">
+              <Link to="/" onClick={toggleMobileMenu} className="text-slate-600 p-2 rounded hover:text-orange-500 hover:bg-slate-200 w-full">Home</Link>
+              <Link to="/text-quiz" onClick={toggleMobileMenu} className="text-slate-600 p-2 rounded hover:text-orange-500 hover:bg-slate-200 w-full">Text Quiz</Link>
+              <Link to="/graphical-quiz" onClick={toggleMobileMenu} className="text-slate-600 p-2 rounded hover:text-orange-500 hover:bg-slate-200 w-full">Graphical Quiz</Link>
+            </nav>
+          </div>
+        )}
+
+        {/* Content section */}
+        <div className="flex flex-grow text-slate-500 h-screen">
+          <div className={`overflow-y-scroll bg-slate-200 transition-all duration-300 ease-in-out ${isSidebarExpanded ? 'w-64' : 'w-16'} flex-shrink-0`}>
             <div className="flex items-center justify-between p-4">
               <h2 className="font-bold text-lg text-center w-full">{isSidebarExpanded ? 'User Model' : ''}</h2>
               <button
@@ -180,13 +211,13 @@ const App = () => {
                   <div className="mt-4">
                     <h3 className="font-semibold mb-2 flex items-center">
                       <div className="flex items-center justify-center">
-                      <button
-                        onClick={toggleRegionProgress}
-                        className="mr-2 p-2 rounded-full text-blue-500 focus:outline-none hover:bg-slate-300"
-                      >
-                        {!isRegionProgressVisible ? <FaChevronCircleDown/> : <FaChevronCircleUp/> }
-                      </button>
-                      <div class="text-sm">{isRegionProgressVisible ? 'Hide' : 'Show'} Progress by Region</div>
+                        <button
+                          onClick={toggleRegionProgress}
+                          className="mr-2 p-2 rounded-full text-blue-500 focus:outline-none hover:bg-slate-300"
+                        >
+                          {!isRegionProgressVisible ? <FaChevronCircleDown /> : <FaChevronCircleUp />}
+                        </button>
+                        <div className="text-sm">{isRegionProgressVisible ? 'Hide' : 'Show'} Progress by Region</div>
                       </div>
                     </h3>
 
@@ -221,7 +252,7 @@ const App = () => {
                     {Object.values(REGIONS).map(region => (
                       <div
                         key={region}
-                        className={`w-16 h-16 flex p-2 items-center justify-center rounded-full text-white text-center text-[0.65rem] font-bold uppercase ${userProfile[region]?.correct >= REGION_MAX ? 'bg-gradient-to-r from-emerald-500 to-emerald-300' : 'bg-gradient-to-r from-slate-400 to-slate-300'}`}
+                        className={`w-16 h-16 flex p-2 items-center justify-center rounded-full text-white text-center text-[0.5rem] font-bold uppercase ${userProfile[region]?.correct >= REGION_MAX ? 'bg-gradient-to-r from-emerald-500 to-emerald-300' : 'bg-gradient-to-r from-slate-400 to-slate-300'}`}
                       >
                         {userProfile[region]?.correct >= REGION_MAX ? `${region} Expert` : ""}
                       </div>
@@ -235,14 +266,14 @@ const App = () => {
 
           {/* Badge Popup */}
           {newBadge && (
-            <div className="fixed bottom-4 right-4 p-4 bg-emerald-400 text-white rounded-lg shadow-lg">
+            <div className="fixed z-50 bottom-4 right-4 p-4 bg-emerald-400 text-white rounded-lg shadow-lg">
               You earned a new badge: {newBadge}!
             </div>
           )}
 
 
           {/* Content */}
-          <div className="flex-grow flex items-start justify-center mt-4 p-6 transition-all duration-300">
+          <div className={`overflow-y-scroll flex-grow flex items-start justify-center mt-4 p-6 transition-all duration-300 ${isSidebarExpanded && 'hidden sm:flex'}`}>
             <div className="container mx-auto">
               <Routes>
                 <Route path="/" element={<Home />} />
@@ -255,6 +286,28 @@ const App = () => {
             </div>
           </div>
         </div>
+
+
+        {/* Footer */}
+        <footer className="bg-slate-700 text-slate-300 p-6 mt-auto text-center w-full">
+          <div className="container mx-auto">
+            <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
+              <div className="text-sm">
+                <p>GeoBuddy</p>
+              </div>
+
+              <div className="flex space-x-4">
+                <Link to="/" className="hover:text-orange-500">Home</Link>
+                <a href="https://github.com/bernhard759/geobuddy" target="_blank" rel="noopener noreferrer" className="hover:text-orange-500">GitHub</a>
+              </div>
+
+              <div className="text-sm">
+                <p>Developed by me</p>
+              </div>
+            </div>
+          </div>
+        </footer>
+
       </div>
     </Router>
   );
