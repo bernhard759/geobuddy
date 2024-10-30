@@ -1,0 +1,20 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Global Skeleton colors using Tailwind colors */
+:root {
+  --skeleton-base-color: theme('colors.slate.200');
+  --skeleton-highlight-color: theme('colors.slate.50');
+}
+
+/* Circular progress bar */
+:root {
+  --color-slate-500: theme('colors.slate.500');
+  --color-slate-300: theme('colors.slate.300');
+}
+
+/* Progress */
+:root {
+  --color-progress: theme('colors.blue.400');
+}
