@@ -40,7 +40,7 @@ const GraphicalQuiz = ({
   const [selectedAnswer, setSelectedAnswer] = useState(null);
   const [isCorrect, setIsCorrect] = useState(null);
 
-  // Initialize OpenAI API with your API key
+  // Initialize OpenAI API
   const openai = new OpenAI({
     apiKey: import.meta.env.VITE_OPENAI_API_KEY,
     dangerouslyAllowBrowser: true
@@ -62,7 +62,7 @@ const GraphicalQuiz = ({
           content: `${regionPrompt} Format the response as: Question: Which {country} is this? Options: {Option1}, {Option2}, {Option3}, {Option4} Correct Answer: {CorrectOption} Latitude: {Latitude} Longitude: {Longitude}`,
         }],
         max_tokens: 150,
-        temperature: 0.7,
+        temperature: 0.3,
       });
 
       const { choices } = response;

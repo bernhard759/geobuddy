@@ -52,7 +52,7 @@ const TextQuiz = ({
           },
         ],
         max_tokens: 150,
-        temperature: 0.7,
+        temperature: 0.3,
       });
       const { choices } = response;
       if (choices && choices.length > 0) {

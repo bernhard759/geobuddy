@@ -7,6 +7,7 @@ import Home from './components/Home';
 import { FaChevronRight, FaChevronLeft, FaChevronCircleUp, FaChevronCircleDown, FaBars } from 'react-icons/fa';
 import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
+import Chat from './components/Chat';
 
 /* Constants */
 const REGIONS = {
@@ -134,6 +135,7 @@ const App = () => {
           {/* Desktop Nav Links */}
           <nav className="hidden md:flex space-x-6">
             <Link to="/" className="text-slate-600 p-2 rounded hover:text-orange-500 hover:bg-slate-100">Home</Link>
+            <Link to="/chat" className="text-slate-600 p-2 rounded hover:text-orange-500 hover:bg-slate-100">Buddy</Link>
             <Link to="/text-quiz" className="text-slate-600 p-2 rounded hover:text-orange-500 hover:bg-slate-100">Text Quiz</Link>
             <Link to="/graphical-quiz" className="text-slate-600 p-2 rounded hover:text-orange-500 hover:bg-slate-100">Graphical Quiz</Link>
           </nav>
@@ -281,6 +283,7 @@ const App = () => {
                   element={<TextQuiz regions={REGIONS} userProfile={userProfile} updateUserProfile={updateUserProfile} updateUserProfileDifficulty={updateUserProfileDifficulty} answeredCapitals={answeredCapitals} setAnsweredCapitals={setAnsweredCapitals} currentRegion={currentRegion} setCurrentRegion={setCurrentRegion} />} />
                 <Route path="/graphical-quiz"
                   element={<GraphicalQuiz regions={REGIONS} userProfile={userProfile} updateUserProfile={updateUserProfile} updateUserProfileDifficulty={updateUserProfileDifficulty} answeredCountries={answeredCountries} setAnsweredCountries={setAnsweredCountries} currentRegion={currentRegion} setCurrentRegion={setCurrentRegion} />} />
+                <Route path="/chat" element={<Chat />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </div>
