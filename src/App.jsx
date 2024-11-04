@@ -8,16 +8,8 @@ import { FaChevronRight, FaChevronLeft, FaChevronCircleUp, FaChevronCircleDown, 
 import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
 import Chat from './components/Chat';
+import {REGIONS, REGION_MAX, POINTS, DIFFICULTIES} from "./engine/adaptiveEngine"
 
-/* Constants */
-const REGIONS = {
-  EUROPE: 'Europe',
-  AFRICA: 'Africa',
-  ASIA: 'Asia',
-  AMERICAS: 'Americas'
-};
-const POINTS = { "easy": 1, "medium": 2, "hard": 3 };
-const REGION_MAX = 15;
 
 /* User profile init generator */
 const generateInitialUserProfile = () => {
