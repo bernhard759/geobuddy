@@ -70,7 +70,7 @@ const AskBuddy = ({ answer, correctAnswer, isCorrect, isCountry = false }) => {
       {chatVisible && (
         <div className="absolute bottom-20 left-5 bg-white p-4 rounded-lg shadow-lg w-80 z-20">
           {answer == null ?
-            <p>Select an answer first to communicate with Buddy.</p>
+            <p>Select an answer first to get to Buddy.</p>
             :
             <>
               <h2 className="font-bold">{isCorrect ? "Buddy's Fun Fact" : "Buddy's hint"}</h2>

@@ -46,14 +46,15 @@ export const updateUserProfile = (userProfile, region, correct, difficulty) => {
 };
 
 
-
-
 // Function to determine the new difficulty based on performance
 export const determineDifficulty = (userProfile, region) => {
     // Get the correct and incorrect answer nums from the learner model state
     const { correct, incorrect } = userProfile[region];
     // Calculate accuracy
     const accuracy = correct / (correct + incorrect + 1); // +1 to avoid division by zero
+
+    // Stay in initial difficulty when just started
+    if (correct+incorrect <= 3) return userProfile[region].difficulty;
 
     // Set the difficulty
     if (accuracy >= 0.8 && correct > 5) return DIFFICULTIES.HARD;
