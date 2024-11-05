@@ -16,5 +16,11 @@
 
 /* Progress */
 :root {
-  --color-progress: theme('colors.blue.400');
+  --color-progress: theme('colors.violet.400');
+}
+
+/* Chat */
+:root {
+  --color-user: theme('colors.gray.300');
+  --color-bot: theme('colors.violet.500');
 }

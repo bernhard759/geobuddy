@@ -3,9 +3,14 @@ import OpenAI from 'openai';
 import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
 import AskBuddy from './AskBuddy';
-import { determineDifficulty } from '../utils/difficulty';
-import {shuffleArray } from '../utils/shuffler';
-import { selectRegion } from '../utils/regionsProba';
+import { shuffleArray } from '../utils/shuffler';
+// Adaptive engine imports
+import {
+  POINTS,
+  determineDifficulty,
+  selectRegion,
+  generateCapitalTextPrompt
+} from '../engine/adaptiveEngine';
 
 
 const TextQuiz = ({
@@ -34,21 +39,14 @@ const TextQuiz = ({
   /* Function to fetch a new question from OpenAI */
   const getQuestion = async (avoid, region) => {
     setLoading(true);
-    const difficulty = determineDifficulty(userProfile, region);
-    let regionPrompt =
-      difficulty === 'hard'
-        ? `Provide a ${difficulty} quiz question about the capital city in the ${region} region. Describe the country instead of naming it but include an unambiguous hint in your description.`
-        : `Provide a ${difficulty} quiz question about the capital city in the ${region} region.`;
-    regionPrompt += ` Dont ask for questions present here: ${avoid}.`;
-    let formatPrompt =
-      'Provide four different capitals as answer options (the correct one must of course be present in those options). Also dont include a Numbering in the Answer options.';
     try {
       const response = await openai.chat.completions.create({
         model: 'gpt-3.5-turbo',
         messages: [
           {
             role: 'user',
-            content: `${regionPrompt} ${formatPrompt} Format the response as: Question: What is the capital of {country}? Options: {Option1}, {Option2}, {Option3}, {Option4} Correct Answer: {CorrectOption}`,
+            // Generate Prompt from the adaptive engine
+            content: generateCapitalTextPrompt(avoid, region, determineDifficulty(userProfile, region)),
           },
         ],
         max_tokens: 150,
@@ -147,7 +145,8 @@ const TextQuiz = ({
       ) : (
         <>
           {/* The question */}
-          <p className="text-center mb-6">{currentQuestion}</p>
+          <p className="text-sm">Difficulty: {userProfile[currentRegion].difficulty}, Points: {POINTS[userProfile[currentRegion].difficulty]} </p>
+          <p className="text-xl text-center mb-6">{currentQuestion}</p>
           <div className="flex flex-col w-50 items-center gap-4 mb-6">
             {options.map((option, index) => (
               <button

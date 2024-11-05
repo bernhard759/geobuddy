@@ -1,9 +1,11 @@
 import React, { useState, useRef, useEffect } from 'react';
 import OpenAI from 'openai';
 import 'react-loading-skeleton/dist/skeleton.css';
-import { FiSend } from 'react-icons/fi';
+import { FiSend, FiUser} from 'react-icons/fi'; // Import icons
+import { AiFillRobot } from "react-icons/ai";
+import { generateChatPrompt } from '../engine/adaptiveEngine';
 
-const Chat = () => {
+const Chat = ({username}) => {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const chatBoxRef = useRef(null);
@@ -14,16 +16,9 @@ const Chat = () => {
     dangerouslyAllowBrowser: true
   });
 
-  // Initial system message to guide the chatbot
   const systemMessage = {
     role: 'system',
-    content: `
-    You are GeoBuddy, an educational assistant. Provide concise and accurate responses. 
-    Do not answer questions about capitals of countries where the answer would be a capital city or country. In such questions answer with a hint describing the city or capital that was asked for.
-    Avoid answering forbidden topics such as personal data requests, inappropriate or off-topic content.
-    Only answer about topics that are connected to geography: cities, countries, continents, earth, lakes, forests, ...
-    Never name a single city in your response.
-    `,
+    content: generateChatPrompt(username),
   };
 
   // Scroll to the bottom when messages are updated
@@ -33,16 +28,12 @@ const Chat = () => {
     }
   }, [messages]);
 
-  // Handle user message submission
   const handleSendMessage = async () => {
-    if (!input.trim()) return; // Prevent empty messages
-
-    // Add the user message to the chat
+    if (!input.trim()) return;
     const userMessage = { role: 'user', content: input };
     setMessages((prev) => [...prev, userMessage]);
-    setInput(''); // Clear input field
+    setInput('');
 
-    // Call OpenAI API
     try {
       const response = await openai.chat.completions.create({
         model: 'gpt-3.5-turbo',
@@ -62,7 +53,6 @@ const Chat = () => {
     }
   };
 
-  // Handle clearing chat history
   const handleClearChat = () => {
     setMessages([]);
   };
@@ -79,9 +69,31 @@ const Chat = () => {
           messages.map((msg, index) => (
             <div
               key={index}
-              className={`mb-2 p-2 rounded-lg ${msg.role === 'user' ? 'bg-orange-200 text-gray-800 self-end' : 'bg-gray-300 text-gray-800 self-start'}`}
+              className={`flex items-end mb-4 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
             >
-              {msg.content}
+              {/* User and Assistant Icons */}
+              {msg.role === 'assistant' && (
+                <AiFillRobot className="text-violet-500 mr-2 self-end" size={24} />
+              )}
+              <div className={`relative max-w-xs px-4 py-2 rounded-lg ${msg.role === 'user' ? 'bg-gray-300 text-gray-800' : 'bg-violet-500 text-white'}`}>
+                <span>{msg.content}</span>
+                
+                {/* Speech Bubble Arrow */}
+                <div
+                  className={`absolute ${msg.role === 'user' ? '-right-0' : '-left-0'} bottom-0 w-0 h-0 border-t-8 ${
+                    msg.role === 'user'
+                      ? 'border-r-8 border-transparent'
+                      : 'border-s-8 border-transparent'
+                  }`}
+                  style={{
+                    borderLeftColor: msg.role === 'user' ? 'transparent' : 'var(--color-bot)',
+                    borderRightColor: msg.role === 'user' ? 'var(--color-user)' : 'transparent',
+                  }}
+                />
+              </div>
+              {msg.role === 'user' && (
+                <FiUser className="text-gray-500 ml-2 self-end" size={24} />
+              )}
             </div>
           ))
         )}
@@ -95,7 +107,7 @@ const Chat = () => {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
-            maxLength={200} // Limit
+            maxLength={200}
             placeholder="Type your message..."
             className="flex-grow p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
           />

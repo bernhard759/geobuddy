@@ -5,7 +5,7 @@ const NotFound = () => (
   <div className="text-center">
     <h2 className="text-2xl font-bold">Page Not Found</h2>
     <p className="my-4">Sorry, the page you’re looking for doesn’t exist.</p>
-    <Link to="/" className="text-blue-500 hover:underline">Go back to Home</Link>
+    <Link to="/" className="text-violet-500 hover:underline">Go back to Home</Link>
   </div>
 );
 

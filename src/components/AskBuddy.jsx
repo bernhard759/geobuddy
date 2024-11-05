@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { FaComments } from 'react-icons/fa';
 import OpenAI from 'openai';
+// Adaptive engine imports
+import { generateBuddyPrompt } from '../engine/adaptiveEngine';
+
 
 const AskBuddy = ({ answer, correctAnswer, isCorrect, isCountry = false }) => {
   const [chatVisible, setChatVisible] = useState(false);
@@ -13,17 +16,9 @@ const AskBuddy = ({ answer, correctAnswer, isCorrect, isCountry = false }) => {
   });
 
   // Function to fetch an interesting fact
-  const getInterestingFact = async (correct) => {
-    let prompt;
-    if (correct) {
-      prompt = isCountry ?
-        `Tell me an interesting fun fact about the country ${answer}.`
-        : `Tell me an interesting fun fact about the capital city of ${answer}.`;
-    } else {
-      prompt = isCountry ?
-        `Describe the country ${correctAnswer} in two sentences without mentioning its name.`
-        : `Describe the capital ${correctAnswer} in two sentences without mentioning its name.`;
-    }
+  const getInterestingFactOrHint = async (correct) => {
+    // generate buddy prompt from the adaptive engine
+    let prompt = generateBuddyPrompt(answer, correctAnswer, correct, isCountry);
 
 
     try {
@@ -49,7 +44,8 @@ const AskBuddy = ({ answer, correctAnswer, isCorrect, isCountry = false }) => {
 
   useEffect(() => {
     if (answer != null) {
-      getInterestingFact(); // Fetch fact
+      setChatMessage("");
+      getInterestingFactOrHint(); // Fetch fact or hint from buddy
     }
   }, [answer]);
 
@@ -57,28 +53,27 @@ const AskBuddy = ({ answer, correctAnswer, isCorrect, isCountry = false }) => {
   return (
     <div>
       {/* Chat icon to trigger chat box */}
-      <div className="absolute bottom-5 left-5 bg-slate-300 rounded-full p-3 shadow-lg">
+      <div className="absolute bottom-5 left-5 bg-violet-500 rounded-full p-3 shadow-lg">
         <FaComments
           size={30}
-          className={`cursor-pointer text-slate-600 ${isCorrect === null ? '' : ''}`}
+          className={`cursor-pointer text-slate-50 ${isCorrect === null ? '' : ''}`}
           onClick={() => {
             setChatVisible((prev) => !prev);
             setChatMessage('');
             if (answer == null) return;
-            getInterestingFact(); // Fetch fact
+            getInterestingFactOrHint(); // Fetch fact or hint from buddy
           }}
         />
       </div>
 
       {/* Chatbox */}
       {chatVisible && (
-        <div className="absolute bottom-20 left-5 bg-slate-200 p-4 rounded-lg shadow-lg w-80 z-20">
+        <div className="absolute bottom-20 left-5 bg-white p-4 rounded-lg shadow-lg w-80 z-20">
           {answer == null ?
             <p>Select an answer first to communicate with Buddy.</p>
             :
             <>
               <h2 className="font-bold">{isCorrect ? "Buddy's Fun Fact" : "Buddy's hint"}</h2>
-              <p>{!isCorrect && "I can give you a hint about the correct answer:"}</p>
               <p>{chatMessage}</p>
             </>
           }

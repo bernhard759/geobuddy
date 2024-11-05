@@ -5,9 +5,13 @@ import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
 import OpenAI from 'openai';
 import AskBuddy from './AskBuddy';
-import { determineDifficulty } from '../utils/difficulty';
 import { shuffleArray } from '../utils/shuffler';
-import { selectRegion } from '../utils/regionsProba';
+// Adaptive engine imports
+import {
+  determineDifficulty,
+  selectRegion,
+  generateCountryGraphicalPrompt
+} from '../engine/adaptiveEngine';
 
 const MapController = ({ coords }) => {
   const map = useMap();
@@ -49,17 +53,13 @@ const GraphicalQuiz = ({
   // Fetch a new question from OpenAI
   const getQuestion = async (avoid, region) => {
     setLoading(true);
-    const difficulty = determineDifficulty(userProfile, region);
-    let regionPrompt = `Provide a ${difficulty} quiz question about a country in the ${region} region.`;
-    regionPrompt += ` Don't ask for questions present here: ${avoid}.`;
-    regionPrompt += ` Also provide the latitude and longitude of the capital of this country.`;
-
     try {
       const response = await openai.chat.completions.create({
         model: "gpt-3.5-turbo",
         messages: [{
           role: "user",
-          content: `${regionPrompt} Format the response as: Question: Which {country} is this? Options: {Option1}, {Option2}, {Option3}, {Option4} Correct Answer: {CorrectOption} Latitude: {Latitude} Longitude: {Longitude}`,
+          // generate prompt from adaptive engine
+          content: generateCountryGraphicalPrompt(avoid, region, determineDifficulty(userProfile, region)),
         }],
         max_tokens: 150,
         temperature: 0.3,
@@ -148,15 +148,8 @@ const GraphicalQuiz = ({
     getQuestion(answeredCountries, region);
   };
 
-  // Helper to shuffle answer options
-  const shuffleArray = (array) => {
-    for (let i = array.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [array[i], array[j]] = [array[j], array[i]];
-    }
-    return array;
-  };
 
+  // Markup
   return (
     <div className="relative p-8 bg-slate-50 rounded-lg border-2 border-slate-200">
       <h1 className="text-2xl font-bold mb-6 text-center">Graphical Geography Quiz</h1>
