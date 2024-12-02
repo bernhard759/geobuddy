@@ -51,7 +51,7 @@ export const determineDifficulty = (userProfile, region) => {
     // Get the correct and incorrect answer nums from the learner model state
     const { correct, incorrect } = userProfile[region];
     // Calculate accuracy
-    const accuracy = correct / (correct + incorrect + 1); // +1 to avoid division by zero
+    const accuracy = correct / (correct + incorrect + 1);
 
     // Stay in initial difficulty when just started
     if (correct+incorrect <= 3) return userProfile[region].difficulty;
