@@ -53,14 +53,14 @@ const AskBuddy = ({ answer, correctAnswer, isCorrect, isCountry = false }) => {
   return (
     <div>
       {/* Chat icon to trigger chat box */}
-      <div className="absolute bottom-5 left-5 bg-violet-500 rounded-full p-3 shadow-lg">
+      <div className={`absolute bottom-5 left-5 ${answer != null ? 'bg-slate-300' : 'bg-violet-500'}  rounded-full p-3 shadow-lg`}>
         <FaComments
           size={30}
-          className={`cursor-pointer text-slate-50 ${isCorrect === null ? '' : ''}`}
+          className={`cursor-pointer text-slate-50 ${answer != null ? 'pointer-events-none opacity-50' : ''}`}
           onClick={() => {
+            if (answer !== null) return;
             setChatVisible((prev) => !prev);
             setChatMessage('');
-            if (answer == null) return;
             getInterestingFactOrHint(); // Fetch fact or hint from buddy
           }}
         />
@@ -69,11 +69,9 @@ const AskBuddy = ({ answer, correctAnswer, isCorrect, isCountry = false }) => {
       {/* Chatbox */}
       {chatVisible && (
         <div className="absolute bottom-20 left-5 bg-white p-4 rounded-lg shadow-lg w-80 z-20">
-          {answer == null ?
-            <p>Select an answer first to get to Buddy.</p>
-            :
+          {answer == null &&
             <>
-              <h2 className="font-bold">{isCorrect ? "Buddy's Fun Fact" : "Buddy's hint"}</h2>
+              <h2 className="font-bold">Buddy's hint</h2>
               <p>{chatMessage}</p>
             </>
           }

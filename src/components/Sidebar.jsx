@@ -17,7 +17,7 @@ export default function Sidebar({
 }) {
 
     // State management
- 
+
     const [isRegionProgressVisible, setIsRegionProgressVisible] = useState(false);
 
 
@@ -57,8 +57,8 @@ export default function Sidebar({
                         <h3 className="font-semibold mb-2">Total Points</h3>
                         <div className="w-24 h-24 mx-auto">
                             <CircularProgressbar
-                                value={totalPoints}
-                                maxValue={REGION_MAX * Object.keys(REGIONS).length * 2}
+                                value={Math.min(totalPoints, REGION_MAX * Object.keys(REGIONS).length)}
+                                maxValue={REGION_MAX * Object.keys(REGIONS).length}
                                 text={`${totalPoints} points`}
                                 styles={buildStyles({
                                     pathColor: `var(--color-progress)`,
@@ -75,7 +75,7 @@ export default function Sidebar({
                         <div className="w-full bg-slate-300 rounded-full h-4">
                             <div
                                 className="h-4 rounded-full"
-                                style={{ width: `${Math.min((totalCorrect / (REGION_MAX * Object.keys(REGIONS).length)) * 100,100)}%`, backgroundColor: "var(--color-progress)" }}
+                                style={{ width: `${Math.min((totalCorrect / (REGION_MAX * Object.keys(REGIONS).length)) * 100, 100)}%`, backgroundColor: "var(--color-progress)" }}
                             ></div>
                         </div>
                         <p className="text-sm mt-1">{totalCorrect} / {REGION_MAX * Object.keys(REGIONS).length}</p>
@@ -105,13 +105,18 @@ export default function Sidebar({
                                                 <div
                                                     className="h-4 rounded-full"
                                                     style={{
-                                                        width: `${Math.min((userProfile[region]?.correct || 0) / REGION_MAX * 100,100)}%`,
+                                                        width: `${Math.min((userProfile[region]?.correct || 0) / REGION_MAX * 100, 100)}%`,
                                                         backgroundColor: "var(--color-progress)"
                                                     }}
                                                 ></div>
                                             </div>
                                             <p className="text-xs mt-1">
-                                                {userProfile[region]?.correct || 0} / {REGION_MAX}
+                                                {(() => {
+                                                    const userRegionData = userProfile?.[region];
+                                                    const correctCount = userRegionData?.correct ?? 0;
+                                                    const maxCorrect = REGION_MAX;
+                                                    return Math.min(correctCount, maxCorrect) + " / " + maxCorrect;
+                                                })()}
                                             </p>
                                         </div>
                                     ))}

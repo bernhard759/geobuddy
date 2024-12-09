@@ -14,7 +14,7 @@ export const DIFFICULTIES = {
     HARD: 'hard'
 }
 export const POINTS = { "easy": 1, "medium": 2, "hard": 3 };
-export const REGION_MAX = 15;
+export const REGION_MAX = 5;
 
 
 //---------------------------------------------
@@ -51,7 +51,7 @@ export const determineDifficulty = (userProfile, region) => {
     // Get the correct and incorrect answer nums from the learner model state
     const { correct, incorrect } = userProfile[region];
     // Calculate accuracy
-    const accuracy = correct / (correct + incorrect + 1);
+    const accuracy = correct + incorrect == 0 ? 0 : correct / (correct + incorrect);
 
     // Stay in initial difficulty when just started
     if (correct+incorrect <= 3) return userProfile[region].difficulty;
@@ -132,7 +132,7 @@ export const generateCapitalTextPrompt = (avoid, region, difficulty) => {
     let questionPrompt = difficulty === DIFFICULTIES.HARD
         ? `Provide a ${difficulty} quiz question about the capital city in the ${region} region. Describe the country instead of naming it but include an unambiguous hint in your description.`
         : `Provide a ${difficulty} quiz question about the capital city in the ${region} region.`;
-    questionPrompt += ` Dont ask for questions present here: ${avoid}.`;
+    questionPrompt += ` Dont ask for questions on capitals present here: ${avoid}.`;
     let formatPrompt = 'Provide four different capitals as answer options (the correct one must of course be present in those options). Also dont include a Numbering in the Answer options.';
     let thePrompt = `${questionPrompt} ${formatPrompt} Format the response as: Question: What is the capital of {country}? Options: {Option1}, {Option2}, {Option3}, {Option4} Correct Answer: {CorrectOption}`;
     return thePrompt;
@@ -166,7 +166,5 @@ export const generateChatPrompt = (username) => {
     Do not answer questions about capitals of countries where the answer would be a capital city or country. In such questions answer with a hint describing the city or capital that was asked for.
     Avoid answering forbidden topics such as personal data requests, inappropriate or off-topic content.
     Only answer about topics that are connected to geography: cities, countries, continents, earth, lakes, forests, ...
-    Never name a single city in your response.
-    The person you are communicating with is called ${username}.
     `;
 }

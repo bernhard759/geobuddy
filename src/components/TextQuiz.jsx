@@ -24,6 +24,7 @@ const TextQuiz = ({
   setCurrentRegion
 }) => {
   const [currentQuestion, setCurrentQuestion] = useState('');
+  const [isError, setIsError] = useState(false);
   const [options, setOptions] = useState([]);
   const [correctAnswer, setCorrectAnswer] = useState('');
   const [selectedAnswer, setSelectedAnswer] = useState(null);
@@ -78,7 +79,7 @@ const TextQuiz = ({
       }
     } catch (error) {
       console.error('Error fetching question:', error);
-      setCurrentQuestion('Error fetching question. Please try again.');
+      setIsError(true); // Set error flag to true
     } finally {
       setLoading(false); // Set loading to false once question is fetched
     }
@@ -146,24 +147,32 @@ const TextQuiz = ({
         <>
           {/* The question */}
           <p className="text-sm">Difficulty: {userProfile[currentRegion].difficulty}, Points: {POINTS[userProfile[currentRegion].difficulty]} </p>
-          <p className="text-xl text-center mb-6">{currentQuestion}</p>
-          <div className="flex flex-col w-50 items-center gap-4 mb-6">
-            {options.map((option, index) => (
-              <button
-                key={index}
-                onClick={() => handleAnswerClick(option)}
-                disabled={selectedAnswer !== null}
-                className={`px-6 py-3 w-40 text-slate-500 rounded-lg ${selectedAnswer === option
-                  ? isCorrect
-                    ? 'bg-green-300'
-                    : 'bg-red-300'
-                  : 'bg-slate-300 hover:bg-slate-400'
-                  }`}
-              >
-                {option}
-              </button>
-            ))}
-          </div>
+          {isError ? (
+            <>
+              <p className="text-xl text-center text-red-500 mb-6">Error fetching question. Please try again.</p>
+            </>
+          ) : (
+            <>
+              <p className="text-xl text-center mb-6">{currentQuestion}</p>
+              <div className="flex flex-col w-50 items-center gap-4 mb-6">
+                {options.map((option, index) => (
+                  <button
+                    key={index}
+                    onClick={() => handleAnswerClick(option)}
+                    disabled={selectedAnswer !== null}
+                    className={`px-6 py-3 w-40 text-slate-500 rounded-lg ${selectedAnswer === option
+                      ? isCorrect
+                        ? 'bg-green-300'
+                        : 'bg-red-300'
+                      : 'bg-slate-300 hover:bg-slate-400'
+                      }`}
+                  >
+                    {option}
+                  </button>
+                ))}
+              </div>
+            </>
+          )}
           <div className="flex justify-center items-center">
             {selectedAnswer && (
               <p className={`text-lg font-semibold ${isCorrect ? 'text-green-500' : 'text-red-500'}`}>

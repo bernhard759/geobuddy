@@ -38,7 +38,7 @@ const GraphicalQuiz = ({
 }) => {
   const [currentCoordinates, setCurrentCoordinates] = useState([0, 0]);
   const [loading, setLoading] = useState(true);
-  const [currentQuestion, setCurrentQuestion] = useState('');
+  const [isError, setIsError] = useState(false);
   const [options, setOptions] = useState([]);
   const [correctAnswer, setCorrectAnswer] = useState('');
   const [selectedAnswer, setSelectedAnswer] = useState(null);
@@ -90,7 +90,6 @@ const GraphicalQuiz = ({
             return;
           }
 
-          setCurrentQuestion(question);
           setOptions(shuffleArray([...options]));
           setCorrectAnswer(correctAnswer);
           setCurrentCoordinates([latitude, longitude]);
@@ -102,7 +101,7 @@ const GraphicalQuiz = ({
       }
     } catch (error) {
       console.error('Error fetching question:', error);
-      setCurrentQuestion('Error fetching question. Please try again.');
+      setIsError(true); // Set error flag to true
     } finally {
       setLoading(false);
     }
@@ -153,46 +152,54 @@ const GraphicalQuiz = ({
   return (
     <div className="relative p-8 bg-slate-50 rounded-lg border-2 border-slate-200">
       <h1 className="text-2xl font-bold mb-6 text-center">Graphical Geography Quiz</h1>
-      <p className="text-center">In which country is this capital?</p>
-      {/* Map displaying the capital */}
-      <MapContainer center={currentCoordinates} zoom={5} style={{ height: '300px', width: '100%', maxWidth: "800px", margin: "0 auto" }} className="z-10">
-        <TileLayer
-          url="https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}.png"
-          attribution='&copy; <a href="https://carto.com/attributions">CARTO</a> | &copy; <a href="https://openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        />
-        <MapController coords={currentCoordinates} />
-        <Marker position={currentCoordinates}>
-          <Popup>In which country is this city located?</Popup>
-        </Marker>
-      </MapContainer>
+      {isError ?
+        (<>
+          <p className="text-center">An error occurred while fetching the question. Please try again later.</p>
+        </>)
+        :
+        (<>
+          <p className="text-center">In which country is this capital?</p>
+          {/* Map displaying the capital */}
+          <MapContainer center={currentCoordinates} zoom={5} style={{ height: '300px', width: '100%', maxWidth: "800px", margin: "0 auto" }} className="z-10">
+            <TileLayer
+              url="https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}.png"
+              attribution='&copy; <a href="https://carto.com/attributions">CARTO</a> | &copy; <a href="https://openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            />
+            <MapController coords={currentCoordinates} />
+            <Marker position={currentCoordinates}>
+              <Popup>In which country is this city located?</Popup>
+            </Marker>
+          </MapContainer>
 
-      {/* Display question and options */}
-      {loading ? (
-        <div className="flex flex-row flex-wrap items-center justify-center gap-4 m-4">
-          <Skeleton height={50} width={150} baseColor="var(--skeleton-base-color)" highlightColor="var(--skeleton-highlight-color)" />
-          <Skeleton height={50} width={150} baseColor="var(--skeleton-base-color)" highlightColor="var(--skeleton-highlight-color)" />
-          <Skeleton height={50} width={150} baseColor="var(--skeleton-base-color)" highlightColor="var(--skeleton-highlight-color)" />
-          <Skeleton height={50} width={150} baseColor="var(--skeleton-base-color)" highlightColor="var(--skeleton-highlight-color)" />
-        </div>
-      ) : (
-        <>
-          <div className="flex flex-row flex-wrap items-center justify-center gap-4 m-4">
-            {options.map((option, index) => (
-              <button
-                key={index}
-                onClick={() => handleAnswerClick(option)}
-                disabled={selectedAnswer !== null}
-                className={`px-6 py-3 w-40 text-slate-500 rounded-lg ${selectedAnswer === option
-                  ? isCorrect
-                    ? 'bg-green-300'
-                    : 'bg-red-300'
-                  : 'bg-slate-300 hover:bg-slate-400'
-                  }`}
-              >
-                {option}
-              </button>
-            ))}
-          </div>
+          {/* Display question and options */}
+          {loading ? (
+            <div className="flex flex-row flex-wrap items-center justify-center gap-4 m-4">
+              <Skeleton height={50} width={150} baseColor="var(--skeleton-base-color)" highlightColor="var(--skeleton-highlight-color)" />
+              <Skeleton height={50} width={150} baseColor="var(--skeleton-base-color)" highlightColor="var(--skeleton-highlight-color)" />
+              <Skeleton height={50} width={150} baseColor="var(--skeleton-base-color)" highlightColor="var(--skeleton-highlight-color)" />
+              <Skeleton height={50} width={150} baseColor="var(--skeleton-base-color)" highlightColor="var(--skeleton-highlight-color)" />
+            </div>
+          ) : (
+            <>
+              <div className="flex flex-row flex-wrap items-center justify-center gap-4 m-4">
+                {options.map((option, index) => (
+                  <button
+                    key={index}
+                    onClick={() => handleAnswerClick(option)}
+                    disabled={selectedAnswer !== null}
+                    className={`px-6 py-3 w-40 text-slate-500 rounded-lg ${selectedAnswer === option
+                      ? isCorrect
+                        ? 'bg-green-300'
+                        : 'bg-red-300'
+                      : 'bg-slate-300 hover:bg-slate-400'
+                      }`}
+                  >
+                    {option}
+                  </button>
+                ))}
+              </div>
+            </>)
+          }
           <div className="flex justify-center items-center">
             {selectedAnswer && (
               <p className={`text-lg font-semibold ${isCorrect ? 'text-green-500' : 'text-red-500'}`}>
@@ -201,7 +208,7 @@ const GraphicalQuiz = ({
             )}
           </div>
         </>
-      )}
+        )}
 
       <div className="flex justify-between items-center mt-6">
 
